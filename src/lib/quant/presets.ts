@@ -1,0 +1,218 @@
+import { uid } from "@/lib/utils";
+import type { StrategySpec } from "./types";
+
+function r(
+  left: StrategySpec["entry"][number]["left"],
+  op: StrategySpec["entry"][number]["op"],
+  right: StrategySpec["entry"][number]["right"],
+) {
+  return { id: uid("r"), left, op, right };
+}
+
+export const PRESETS: StrategySpec[] = [
+  {
+    name: "SPY SMA 20/50 golden cross",
+    symbol: "SPY",
+    timeframe: "1d",
+    side: "long",
+    capital: 100000,
+    riskPct: 1,
+    commissionPct: 0.05,
+    entry: [r({ kind: "sma", period: 20 }, "cross_above", { kind: "sma", period: 50 })],
+    exit: [r({ kind: "sma", period: 20 }, "cross_below", { kind: "sma", period: 50 })],
+    stopPct: 3,
+    takePct: 9,
+  },
+  {
+    name: "QQQ RSI 14 mean reversion",
+    symbol: "QQQ",
+    timeframe: "1d",
+    side: "long",
+    capital: 100000,
+    riskPct: 0.75,
+    commissionPct: 0.05,
+    entry: [r({ kind: "rsi", period: 14 }, "lt", { kind: "value", value: 30 })],
+    exit: [r({ kind: "rsi", period: 14 }, "gt", { kind: "value", value: 55 })],
+    stopPct: 2,
+    takePct: 5,
+  },
+  {
+    name: "NVDA MACD momentum",
+    symbol: "NVDA",
+    timeframe: "1d",
+    side: "long",
+    capital: 100000,
+    riskPct: 1,
+    commissionPct: 0.05,
+    entry: [
+      r(
+        { kind: "macd_line", fast: 12, slow: 26, signal: 9 },
+        "cross_above",
+        { kind: "macd_signal", fast: 12, slow: 26, signal: 9 },
+      ),
+    ],
+    exit: [
+      r(
+        { kind: "macd_line", fast: 12, slow: 26, signal: 9 },
+        "cross_below",
+        { kind: "macd_signal", fast: 12, slow: 26, signal: 9 },
+      ),
+    ],
+    stopPct: 4,
+    takePct: 12,
+  },
+  {
+    name: "BTC Donchian 20 breakout",
+    symbol: "BTC-USD",
+    timeframe: "1d",
+    side: "long",
+    capital: 100000,
+    riskPct: 1.25,
+    commissionPct: 0.08,
+    entry: [r({ kind: "close" }, "gt", { kind: "donchian_high", period: 20 })],
+    exit: [r({ kind: "close" }, "lt", { kind: "donchian_low", period: 20 })],
+    stopPct: 6,
+    takePct: 18,
+  },
+  {
+    name: "AAPL Bollinger fade",
+    symbol: "AAPL",
+    timeframe: "1d",
+    side: "long",
+    capital: 100000,
+    riskPct: 0.8,
+    commissionPct: 0.05,
+    entry: [
+      r({ kind: "close" }, "lt", { kind: "bb_lower", period: 20, stdev: 2 }),
+      r({ kind: "rsi", period: 14 }, "lt", { kind: "value", value: 35 }),
+    ],
+    exit: [r({ kind: "close" }, "gt", { kind: "bb_mid", period: 20, stdev: 2 })],
+    stopPct: 2.5,
+    takePct: 6,
+  },
+  {
+    name: "GLD EMA 12/26 trend",
+    symbol: "GLD",
+    timeframe: "1d",
+    side: "long",
+    capital: 100000,
+    riskPct: 1,
+    commissionPct: 0.05,
+    entry: [r({ kind: "ema", period: 12 }, "cross_above", { kind: "ema", period: 26 })],
+    exit: [r({ kind: "ema", period: 12 }, "cross_below", { kind: "ema", period: 26 })],
+    stopPct: 2,
+    takePct: 7,
+  },
+];
+
+export const STACKS = [
+  {
+    id: "tv",
+    shelf: "Brokers & Venues",
+    name: "TradingView Pine bridge",
+    blurb: "Compile to Pine v5 with alert() JSON that a webhook stack can turn into orders.",
+    detail:
+      "HORSE does not log into TradingView. It writes a strategy() script you paste into the Pine Editor, plus a webhook payload. That is the part the other IDE kept mangling.",
+  },
+  {
+    id: "tos",
+    shelf: "Brokers & Venues",
+    name: "thinkorswim ThinkScript",
+    blurb: "AddOrder strategy for TOS. Import as a Strategy, not a Study.",
+    detail: "Compiled ThinkScript uses AddOrder on next open so fills match the backtest convention.",
+  },
+  {
+    id: "ts",
+    shelf: "Brokers & Venues",
+    name: "TradeStation EasyLanguage",
+    blurb: "Buy/Sell next bar at market with stop and target.",
+    detail: "EasyLanguage export is a starting point — verify in the TS editor before going live.",
+  },
+  {
+    id: "alpaca",
+    shelf: "Brokers & Venues",
+    name: "Alpaca paper keys",
+    blurb: "Local-only key slot. HORSE never uploads credentials.",
+    detail: "Keys stay in this browser. Use them from your own Python runner with the compiled script.",
+  },
+  {
+    id: "ibkr",
+    shelf: "Brokers & Venues",
+    name: "Interactive Brokers TWS",
+    blurb: "Describe IB Gateway and Horse writes a connection sketch, not a hosted login.",
+    detail: "No cloud runtime. You run the compiled Python against IBKR on your machine.",
+  },
+  {
+    id: "coinbase",
+    shelf: "Brokers & Venues",
+    name: "Coinbase Advanced",
+    blurb: "Crypto venue stack for BTC-USD / ETH-USD specs.",
+    detail: "Pairs with the crypto session calendar (24/7 bars) in the backtester.",
+  },
+  {
+    id: "yahoo",
+    shelf: "Market Data",
+    name: "Yahoo history feed",
+    blurb: "Daily and intraday bars when the feed answers. Synthetic fallback is seeded and honest.",
+    detail: "If Yahoo is quiet from this host, HORSE uses a deterministic simulator labelled as such. Never mixed into 'real' without a badge.",
+  },
+  {
+    id: "kraken",
+    shelf: "Market Data",
+    name: "Kraken public OHLC",
+    blurb: "Alternate crypto history if you wire the stack into your own runner.",
+    detail: "The compiled Python can be pointed at any CSV with open/high/low/close/volume.",
+  },
+  {
+    id: "bt",
+    shelf: "Backtesting",
+    name: "HORSE local engine",
+    blurb: "Unlimited runs in the browser. No monthly cap, no queue.",
+    detail: "Fills next open, stop-first on same bar, commission, risk-based size. That is the whole point of cancelling a metered subscription.",
+  },
+  {
+    id: "wf",
+    shelf: "Backtesting",
+    name: "Walk-forward window",
+    blurb: "Split the equity path into IS/OOS halves from the monitor.",
+    detail: "A second backtest on the last 40% of bars. Not curve-fit theatre.",
+  },
+  {
+    id: "risk",
+    shelf: "Risk & Portfolio",
+    name: "Percent-risk sizer",
+    blurb: "Shares = (equity × risk%) / (entry × stop%).",
+    detail: "If you omit a stop, HORSE refuses to pretend — it falls back to a capped fraction of equity.",
+  },
+  {
+    id: "ops",
+    shelf: "Execution & Ops",
+    name: "Heartbeat monitor",
+    blurb: "Paper tape and flatten-if-down-3% guard on the monitor page.",
+    detail: "Simulated live ticks on the active spec. Not a broker. It smells like the desk.",
+  },
+  {
+    id: "ml",
+    shelf: "ML & Signals",
+    name: "Signal research pad",
+    blurb: "Ask Horse to add RSI or MACD as a filter, not a black box.",
+    detail: "No mystery model. Filters are rules you can read in the spec.",
+  },
+  {
+    id: "opt",
+    shelf: "Options",
+    name: "Defined-risk overlay",
+    blurb: "Stops and targets travel with the spec into every dialect.",
+    detail: "Full options chains are not simulated here. The overlay keeps you from exporting a naked signal.",
+  },
+] as const;
+
+export const SHELVES = [
+  "Brokers & Venues",
+  "Market Data",
+  "Backtesting",
+  "Risk & Portfolio",
+  "Execution & Ops",
+  "ML & Signals",
+  "Options",
+] as const;
