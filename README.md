@@ -2,8 +2,6 @@
 
 Private product. Its own repo. Do not merge with `quantvibe`, `simutrade-labs`, or anything else because the words look related.
 
-You can't play in the NFL, but you can smell like it.
-
 HORSE is a spec-first quant workhorse. Describe a strategy in English. Horse compiles a structured spec, then emits **Pine Script v5**, **Python**, **ThinkScript**, and **EasyLanguage** from that spec — files that actually paste into TradingView and the rest. Unlimited local backtests. No monthly meter.
 
 ## Source of truth

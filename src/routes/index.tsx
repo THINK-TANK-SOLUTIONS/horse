@@ -91,7 +91,7 @@ function Home() {
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Quant workhorse</p>
           <h1 className="mt-4 font-display text-5xl leading-[1.05] tracking-tight md:text-7xl">
-            You can't play in the NFL, but you can smell like it.
+            Describe a strategy. Get a file that pastes.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted">
             I am Horse. Describe a strategy in English. I compile a spec, then emit Pine, Python,
